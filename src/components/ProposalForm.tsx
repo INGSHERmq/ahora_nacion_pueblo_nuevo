@@ -1,14 +1,18 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail, sanitizeInput } from "@/lib/utils";
 
 type FormState = "idle" | "loading" | "success" | "error";
 type ProposalType = "propuesta" | "problematica";
 
-export function ProposalForm() {
+type ProposalFormProps = {
+  onSuccess?: () => void;
+  inModal?: boolean;
+};
+
+export function ProposalForm({ onSuccess, inModal = false }: ProposalFormProps) {
   const [state, setState] = useState<FormState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [tipo, setTipo] = useState<ProposalType>("propuesta");
@@ -25,6 +29,7 @@ export function ProposalForm() {
       setState("success");
       event.currentTarget.reset();
       setTipo("propuesta");
+      onSuccess?.();
       return;
     }
 
@@ -71,127 +76,128 @@ export function ProposalForm() {
     event.currentTarget.reset();
     setTipo("propuesta");
     window.dispatchEvent(new CustomEvent("proposal-submitted"));
+    setTimeout(() => onSuccess?.(), 1800);
   }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.55 }}
-      className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-xl sm:p-8"
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <input
-          type="text"
-          name="website"
-          tabIndex={-1}
-          autoComplete="off"
-          className="hidden"
-          aria-hidden="true"
-        />
+  const form = (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        className="hidden"
+        aria-hidden="true"
+      />
 
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setTipo("propuesta")}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-              tipo === "propuesta"
-                ? "bg-[#D72638] text-white shadow-md"
-                : "border border-neutral-300 text-neutral-700 hover:border-[#D72638]/40"
-            }`}
-          >
-            Propuesta
-          </button>
-          <button
-            type="button"
-            onClick={() => setTipo("problematica")}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-              tipo === "problematica"
-                ? "bg-[#D72638] text-white shadow-md"
-                : "border border-neutral-300 text-neutral-700 hover:border-[#D72638]/40"
-            }`}
-          >
-            Problemática
-          </button>
-        </div>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => setTipo("propuesta")}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+            tipo === "propuesta"
+              ? "bg-[#D72638] text-white shadow-md"
+              : "border border-neutral-300 text-neutral-700 hover:border-[#D72638]/40"
+          }`}
+        >
+          Propuesta
+        </button>
+        <button
+          type="button"
+          onClick={() => setTipo("problematica")}
+          className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+            tipo === "problematica"
+              ? "bg-[#D72638] text-white shadow-md"
+              : "border border-neutral-300 text-neutral-700 hover:border-[#D72638]/40"
+          }`}
+        >
+          Problemática
+        </button>
+      </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-neutral-700">
-              Tu nombre (opcional)
-            </span>
-            <input
-              name="nombre"
-              maxLength={120}
-              className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
-              placeholder="León / Leona"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-neutral-700">
-              Localidad o sector *
-            </span>
-            <input
-              required
-              name="localidad"
-              maxLength={120}
-              className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
-              placeholder="Ej. Urb. San José, Av. Principal..."
-            />
-          </label>
-        </div>
-
+      <div className={`grid gap-5 ${inModal ? "sm:grid-cols-2" : "sm:grid-cols-2"}`}>
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-neutral-700">
-            Correo (opcional, para contactarte)
+            Tu nombre (opcional)
           </span>
           <input
-            type="email"
-            name="email"
-            maxLength={254}
+            name="nombre"
+            maxLength={120}
             className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
-            placeholder="correo@ejemplo.com"
+            placeholder="León / Leona"
           />
         </label>
 
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-neutral-700">
-            {tipo === "propuesta" ? "Tu propuesta *" : "Describe la problemática *"}
+            Localidad o sector *
           </span>
-          <textarea
+          <input
             required
-            name="descripcion"
-            rows={5}
-            maxLength={2000}
-            className="w-full resize-none rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
-            placeholder={
-              tipo === "propuesta"
-                ? "¿Qué propones para mejorar tu localidad?"
-                : "¿Qué problemática enfrenta tu comunidad?"
-            }
+            name="localidad"
+            maxLength={120}
+            className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
+            placeholder="Ej. Urb. San José..."
           />
         </label>
+      </div>
 
-        {state === "error" ? (
-          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
-        ) : null}
+      <label className="block">
+        <span className="mb-2 block text-sm font-medium text-neutral-700">
+          Correo (opcional)
+        </span>
+        <input
+          type="email"
+          name="email"
+          maxLength={254}
+          className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
+          placeholder="correo@ejemplo.com"
+        />
+      </label>
 
-        {state === "success" ? (
-          <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">
-            ¡Gracias, león/leona! Tu aporte fue registrado y será revisado por nuestro equipo.
-          </p>
-        ) : null}
+      <label className="block">
+        <span className="mb-2 block text-sm font-medium text-neutral-700">
+          {tipo === "propuesta" ? "Tu propuesta *" : "Describe la problemática *"}
+        </span>
+        <textarea
+          required
+          name="descripcion"
+          rows={inModal ? 4 : 5}
+          maxLength={2000}
+          className="w-full resize-none rounded-xl border border-neutral-300 px-4 py-3 outline-none transition focus:border-[#D72638] focus:ring-2 focus:ring-[#D72638]/20"
+          placeholder={
+            tipo === "propuesta"
+              ? "¿Qué propones para mejorar tu localidad?"
+              : "¿Qué problemática enfrenta tu comunidad?"
+          }
+        />
+      </label>
 
-        <button
-          type="submit"
-          disabled={state === "loading"}
-          className="w-full rounded-full bg-[#D72638] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#b91c2c] disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {state === "loading" ? "Enviando..." : "Enviar mi aporte"}
-        </button>
-      </form>
-    </motion.div>
+      {state === "error" ? (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
+      ) : null}
+
+      {state === "success" ? (
+        <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700">
+          ¡Gracias, león/leona! Tu aporte fue registrado.
+        </p>
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={state === "loading" || state === "success"}
+        className="w-full rounded-full bg-[#D72638] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#b91c2c] disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {state === "loading" ? "Enviando..." : "Enviar mi aporte"}
+      </button>
+    </form>
+  );
+
+  if (inModal) return form;
+
+  return (
+    <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-xl sm:p-8">
+      {form}
+    </div>
   );
 }
