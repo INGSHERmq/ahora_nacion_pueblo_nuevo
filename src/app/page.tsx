@@ -4,6 +4,8 @@ import { HeroSection } from "@/components/HeroSection";
 import { AnimatedSection } from "@/components/AnimatedSection";
 import { DimensionCard } from "@/components/DimensionCard";
 import { JoinForm } from "@/components/JoinForm";
+import { ProposalForm } from "@/components/ProposalForm";
+import { FloatingProposals } from "@/components/FloatingProposals";
 import {
   dimensiones,
   ideario,
@@ -103,6 +105,36 @@ export default function HomePage() {
         </AnimatedSection>
 
         <AnimatedSection
+          id="tu-voz"
+          title="Tu voz cuenta"
+          subtitle="Tú también puedes ser león o leona: envíanos tu propuesta o tu problemática, ayuda a tu localidad."
+          className="bg-gradient-to-b from-white to-[#FAFAFA]"
+        >
+          <div className="grid items-start gap-8 lg:grid-cols-[1fr_1.1fr]">
+            <div className="space-y-6">
+              <div className="relative overflow-hidden rounded-3xl bg-[#D72638] p-8 text-white shadow-xl">
+                <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+                <p className="text-sm uppercase tracking-[0.2em] text-white/70">Participación ciudadana</p>
+                <h3 className="relative mt-3 font-heading text-3xl leading-tight sm:text-4xl">
+                  Tú también puedes ser león o leona
+                </h3>
+                <p className="relative mt-4 text-lg leading-relaxed text-white/90">
+                  Envíanos tu propuesta o tu problemática. Ayuda a tu localidad y construye un
+                  Pueblo Nuevo mejor para todos.
+                </p>
+                <ul className="relative mt-6 space-y-3 text-sm text-white/90">
+                  <li>• Comparte ideas para mejorar tu barrio</li>
+                  <li>• Denuncia problemáticas de tu sector</li>
+                  <li>• Ayúdanos a priorizar las necesidades reales</li>
+                </ul>
+              </div>
+              <FloatingProposals />
+            </div>
+            <ProposalForm />
+          </div>
+        </AnimatedSection>
+
+        <AnimatedSection
           id="manada"
           title="Únete a la manada"
           subtitle="Súmate al movimiento ciudadano. Déjanos tus datos y nos pondremos en contacto contigo."
@@ -132,9 +164,14 @@ export default function HomePage() {
           <p className="text-sm text-neutral-600">
             © {new Date().getFullYear()} {planMeta.subtitle} · {planMeta.period}
           </p>
-          <Link href="/admin" className="text-sm font-medium text-[#D72638] hover:underline">
-            Acceso administradores
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/juegos" className="text-sm font-medium text-[#D72638] hover:underline">
+              Juegos
+            </Link>
+            <Link href="/admin" className="text-sm font-medium text-[#D72638] hover:underline">
+              Acceso administradores
+            </Link>
+          </div>
         </div>
       </footer>
     </>

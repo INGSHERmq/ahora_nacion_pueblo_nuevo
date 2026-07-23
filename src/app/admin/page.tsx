@@ -7,9 +7,19 @@ import { createClient } from "@/lib/supabase/client";
 type Lead = {
   id: string;
   nombre: string;
-  email: string;
+  email: string | null;
   telefono: string | null;
   mensaje: string | null;
+  created_at: string;
+};
+
+type Proposal = {
+  id: string;
+  nombre: string | null;
+  localidad: string;
+  tipo: "propuesta" | "problematica";
+  descripcion: string;
+  email: string | null;
   created_at: string;
 };
 
@@ -22,6 +32,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState("");
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
   const [visitCount, setVisitCount] = useState<number | null>(null);
 
   const loadDashboard = useCallback(async () => {
@@ -30,18 +41,26 @@ export default function AdminPage() {
     if (!adminCheck) {
       setIsAdmin(false);
       setLeads([]);
+      setProposals([]);
       return;
     }
 
     setIsAdmin(true);
 
-    const [{ data: leadsData }, { data: statsData }, { data: countData }] = await Promise.all([
+    const [
+      { data: leadsData },
+      { data: proposalsData },
+      { data: statsData },
+      { data: countData },
+    ] = await Promise.all([
       supabase.from("manada_leads").select("*").order("created_at", { ascending: false }),
+      supabase.from("citizen_proposals").select("*").order("created_at", { ascending: false }),
       supabase.from("site_stats").select("total_visits, updated_at").eq("id", 1).maybeSingle(),
       supabase.rpc("get_visit_count"),
     ]);
 
     setLeads(leadsData ?? []);
+    setProposals(proposalsData ?? []);
     setVisitCount(statsData?.total_visits ?? countData ?? 0);
   }, [supabase]);
 
@@ -84,6 +103,7 @@ export default function AdminPage() {
     setIsAuthenticated(false);
     setIsAdmin(false);
     setLeads([]);
+    setProposals([]);
     setVisitCount(null);
   }
 
@@ -183,7 +203,7 @@ export default function AdminPage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-3xl bg-[#D72638] p-6 text-white shadow-lg">
             <p className="text-sm text-white/80">Visitas al sitio</p>
             <p className="mt-2 font-heading text-4xl">{visitCount?.toLocaleString("es-PE") ?? "0"}</p>
@@ -193,10 +213,19 @@ export default function AdminPage() {
             <p className="mt-2 font-heading text-4xl text-[#D72638]">{leads.length}</p>
           </div>
           <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <p className="text-sm text-neutral-500">Propuestas ciudadanas</p>
+            <p className="mt-2 font-heading text-4xl text-[#D72638]">{proposals.length}</p>
+          </div>
+          <div className="rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm">
             <p className="text-sm text-neutral-500">Último registro</p>
             <p className="mt-2 text-lg font-semibold text-neutral-800">
-              {leads[0]
-                ? new Date(leads[0].created_at).toLocaleString("es-PE")
+              {leads[0] || proposals[0]
+                ? new Date(
+                    Math.max(
+                      leads[0] ? new Date(leads[0].created_at).getTime() : 0,
+                      proposals[0] ? new Date(proposals[0].created_at).getTime() : 0,
+                    ),
+                  ).toLocaleString("es-PE")
                 : "Sin registros"}
             </p>
           </div>
@@ -228,11 +257,67 @@ export default function AdminPage() {
                   leads.map((lead) => (
                     <tr key={lead.id} className="border-t border-neutral-100">
                       <td className="px-6 py-4 font-medium text-neutral-800">{lead.nombre}</td>
-                      <td className="px-6 py-4 text-neutral-700">{lead.email}</td>
+                      <td className="px-6 py-4 text-neutral-700">{lead.email ?? "—"}</td>
                       <td className="px-6 py-4 text-neutral-700">{lead.telefono ?? "—"}</td>
                       <td className="max-w-xs px-6 py-4 text-neutral-700">{lead.mensaje ?? "—"}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-neutral-600">
                         {new Date(lead.created_at).toLocaleString("es-PE")}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
+          <div className="border-b border-neutral-200 px-6 py-4">
+            <h2 className="font-heading text-xl text-[#D72638]">
+              Propuestas y problemáticas ciudadanas
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-[#FAFAFA] text-neutral-600">
+                <tr>
+                  <th className="px-6 py-3 font-medium">Tipo</th>
+                  <th className="px-6 py-3 font-medium">Nombre</th>
+                  <th className="px-6 py-3 font-medium">Localidad</th>
+                  <th className="px-6 py-3 font-medium">Descripción</th>
+                  <th className="px-6 py-3 font-medium">Email</th>
+                  <th className="px-6 py-3 font-medium">Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {proposals.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-neutral-500">
+                      Aún no hay propuestas ciudadanas.
+                    </td>
+                  </tr>
+                ) : (
+                  proposals.map((proposal) => (
+                    <tr key={proposal.id} className="border-t border-neutral-100">
+                      <td className="px-6 py-4">
+                        <span
+                          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            proposal.tipo === "propuesta"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {proposal.tipo === "propuesta" ? "Propuesta" : "Problemática"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-neutral-800">
+                        {proposal.nombre ?? "—"}
+                      </td>
+                      <td className="px-6 py-4 text-neutral-700">{proposal.localidad}</td>
+                      <td className="max-w-xs px-6 py-4 text-neutral-700">{proposal.descripcion}</td>
+                      <td className="px-6 py-4 text-neutral-700">{proposal.email ?? "—"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-neutral-600">
+                        {new Date(proposal.created_at).toLocaleString("es-PE")}
                       </td>
                     </tr>
                   ))

@@ -7,6 +7,7 @@ const navItems = [
   { href: "#presentacion", label: "Presentación" },
   { href: "#ideario", label: "Ideario" },
   { href: "#propuestas", label: "Propuestas" },
+  { href: "#tu-voz", label: "Tu voz" },
   { href: "#manada", label: "Únete" },
 ];
 
