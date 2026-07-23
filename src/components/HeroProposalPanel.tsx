@@ -154,7 +154,7 @@ export function HeroProposalPanel() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 30, scale: 0.96 }}
               transition={{ type: "spring", damping: 22 }}
-              className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+              className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 text-neutral-900 shadow-2xl sm:p-8"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-5 flex items-start justify-between gap-4">
