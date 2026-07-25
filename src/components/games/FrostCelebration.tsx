@@ -89,7 +89,7 @@ export function FrostCelebration({ show, onClose }: FrostCelebrationProps) {
                 ¡Ganaste!
               </h2>
               <p className="mt-4 text-lg font-semibold leading-relaxed text-neutral-800">
-                Ganaste una carapulcra el 28 de julio en el local del Carapulcrón
+                Ganaste una carapulcra el 28 de julio en el local del Carapulcrón a las 12 pm.
               </p>
               <p className="mt-2 text-sm text-neutral-600">
                 Presenta este mensaje para reclamar tu premio 🎉

@@ -59,7 +59,7 @@ export default function JuegosPage() {
               </h2>
               <p className="mx-auto mt-3 max-w-lg text-neutral-600">
                 Gana en cualquier modo (fácil, medio o difícil) y reclama tu carapulcra el 28 de
-                julio en el local del Carapulcrón.
+                julio en el local del Carapulcrón a las 12 pm.
               </p>
             </motion.div>
 
