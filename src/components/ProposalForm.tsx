@@ -19,15 +19,16 @@ export function ProposalForm({ onSuccess, inModal = false }: ProposalFormProps) 
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setState("loading");
     setErrorMessage("");
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const honeypot = String(formData.get("website") ?? "");
 
     if (honeypot.trim()) {
       setState("success");
-      event.currentTarget.reset();
+      form.reset();
       setTipo("propuesta");
       onSuccess?.();
       return;
@@ -73,7 +74,7 @@ export function ProposalForm({ onSuccess, inModal = false }: ProposalFormProps) 
     }
 
     setState("success");
-    event.currentTarget.reset();
+    form.reset();
     setTipo("propuesta");
     window.dispatchEvent(new CustomEvent("proposal-submitted"));
     setTimeout(() => onSuccess?.(), 1800);
@@ -115,7 +116,7 @@ export function ProposalForm({ onSuccess, inModal = false }: ProposalFormProps) 
         </button>
       </div>
 
-      <div className={`grid gap-5 ${inModal ? "sm:grid-cols-2" : "sm:grid-cols-2"}`}>
+      <div className="grid gap-5 sm:grid-cols-2">
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-neutral-700">
             Tu nombre (opcional)

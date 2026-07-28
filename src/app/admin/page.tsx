@@ -9,6 +9,7 @@ type Lead = {
   nombre: string;
   email: string | null;
   telefono: string | null;
+  direccion: string | null;
   mensaje: string | null;
   created_at: string;
 };
@@ -242,6 +243,7 @@ export default function AdminPage() {
                   <th className="px-6 py-3 font-medium">Nombre</th>
                   <th className="px-6 py-3 font-medium">Email</th>
                   <th className="px-6 py-3 font-medium">Teléfono</th>
+                  <th className="px-6 py-3 font-medium">Dirección</th>
                   <th className="px-6 py-3 font-medium">Mensaje</th>
                   <th className="px-6 py-3 font-medium">Fecha</th>
                 </tr>
@@ -249,7 +251,7 @@ export default function AdminPage() {
               <tbody>
                 {leads.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-neutral-500">
+                    <td colSpan={6} className="px-6 py-8 text-center text-neutral-500">
                       Aún no hay registros.
                     </td>
                   </tr>
@@ -259,6 +261,7 @@ export default function AdminPage() {
                       <td className="px-6 py-4 font-medium text-neutral-800">{lead.nombre}</td>
                       <td className="px-6 py-4 text-neutral-700">{lead.email ?? "—"}</td>
                       <td className="px-6 py-4 text-neutral-700">{lead.telefono ?? "—"}</td>
+                      <td className="max-w-xs px-6 py-4 text-neutral-700">{lead.direccion ?? "—"}</td>
                       <td className="max-w-xs px-6 py-4 text-neutral-700">{lead.mensaje ?? "—"}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-neutral-600">
                         {new Date(lead.created_at).toLocaleString("es-PE")}
